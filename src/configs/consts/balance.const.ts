@@ -1,0 +1,6 @@
+export const BALANCE_LIMITS = {
+  MAX_CREDIT: 1_000_000,
+  DECIMAL_PLACES: 8,
+  OPERATION_ID_LENGTH: 191,
+  NOTE_LENGTH: 500,
+} as const;

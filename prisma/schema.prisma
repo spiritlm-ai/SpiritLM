@@ -1,0 +1,216 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id                  String               @id @default(cuid())
+  clerkId             String               @unique @db.VarChar(191)
+  balance             Decimal              @default(0) @db.Decimal(20, 8)
+  testBalance         Decimal              @default(0) @db.Decimal(20, 8)
+  createdAt           DateTime             @default(now())
+  keys                ApiKey[]
+  requests            ApiRequest[]
+  entries             BalanceEntry[]
+  payments            Payment[]
+  yooKassaPayments    YooKassaPayment[]
+  subscriptionOrders  SubscriptionOrder[]
+  subscriptionPeriods SubscriptionPeriod[]
+}
+
+model Payment {
+  subscriptionOrderId String?            @unique
+  subscriptionOrder   SubscriptionOrder? @relation(fields: [subscriptionOrderId], references: [id])
+  id                  String             @id @default(cuid())
+  userId              String
+  user                User               @relation(fields: [userId], references: [id])
+  requestId           String             @db.VarChar(36)
+  mode                String             @db.VarChar(4)
+  appId               String             @db.VarChar(32)
+  invoiceId           String?            @db.VarChar(32)
+  amount              Decimal            @db.Decimal(20, 8)
+  currency            String             @default("RUB") @db.VarChar(3)
+  status              PaymentStatus      @default(CREATING)
+  invoiceUrl          String?            @db.VarChar(2048)
+  createdAt           DateTime           @default(now())
+  expiresAt           DateTime?
+  paidAt              DateTime?
+  creditedAt          DateTime?
+  checkedAt           DateTime?
+  paidAsset           String?            @db.VarChar(16)
+  paidAmount          Decimal?           @db.Decimal(30, 18)
+  feeAsset            String?            @db.VarChar(16)
+  feeAmount           Decimal?           @db.Decimal(30, 18)
+
+  @@unique([userId, mode, appId, requestId])
+  @@unique([mode, appId, invoiceId])
+  @@index([userId, mode, appId, createdAt])
+  @@index([mode, appId, creditedAt, checkedAt])
+}
+
+enum PaymentStatus {
+  CREATING
+  PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+  FAILED
+}
+
+model ApiKey {
+  useSubscription      Boolean      @default(false)
+  allowBalanceFallback Boolean      @default(false)
+  id                   String       @id @default(cuid())
+  userId               String
+  user                 User         @relation(fields: [userId], references: [id])
+  name                 String       @db.VarChar(48)
+  hash                 String       @unique @db.Char(64)
+  prefix               String       @db.VarChar(24)
+  createdAt            DateTime     @default(now())
+  lastUsedAt           DateTime?
+  revokedAt            DateTime?
+  requests             ApiRequest[]
+
+  @@index([userId, revokedAt])
+}
+
+model ApiRequest {
+  paymentSource        FundingSource       @default(BALANCE)
+  subscriptionPeriodId String?
+  subscriptionPeriod   SubscriptionPeriod? @relation(fields: [subscriptionPeriodId], references: [id])
+  reservedCost         Decimal             @default(0) @db.Decimal(20, 8)
+  id                   String              @id @default(cuid())
+  userId               String
+  user                 User                @relation(fields: [userId], references: [id])
+  apiKeyId             String?
+  apiKey               ApiKey?             @relation(fields: [apiKeyId], references: [id])
+  model                String              @db.VarChar(191)
+  upstreamModel        String              @db.VarChar(191)
+  status               String              @db.VarChar(32)
+  streaming            Boolean
+  diagnostic           Boolean             @default(false)
+  httpStatus           Int?
+  inputTokens          Int?
+  outputTokens         Int?
+  cachedTokens         Int?
+  reasoningTokens      Int?
+  totalTokens          Int?
+  usageKnown           Boolean             @default(false)
+  estimatedCost        Decimal?            @db.Decimal(20, 8)
+  chargedCost          Decimal             @default(0) @db.Decimal(20, 8)
+  pricePerMillion      Decimal             @db.Decimal(20, 8)
+  createdAt            DateTime            @default(now())
+  finishedAt           DateTime?
+  durationMs           Int?
+
+  @@index([userId, createdAt])
+  @@index([apiKeyId, createdAt])
+  @@index([userId, status, createdAt])
+}
+
+model BalanceEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  operationId String   @unique @db.VarChar(191)
+  amount      Decimal  @db.Decimal(20, 8)
+  note        String   @db.VarChar(500)
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model YooKassaPayment {
+  subscriptionOrderId String?            @unique
+  subscriptionOrder   SubscriptionOrder? @relation(fields: [subscriptionOrderId], references: [id])
+  id                  String             @id @default(cuid())
+  userId              String
+  user                User               @relation(fields: [userId], references: [id])
+  requestId           String             @db.VarChar(36)
+  mode                String             @db.VarChar(4)
+  shopId              String             @db.VarChar(32)
+  idempotenceKey      String             @unique @db.VarChar(64)
+  providerId          String?            @db.VarChar(64)
+  amount              Decimal            @db.Decimal(20, 8)
+  currency            String             @default("RUB") @db.VarChar(3)
+  returnUrl           String             @db.VarChar(2048)
+  invoiceUrl          String?            @db.VarChar(2048)
+  status              PaymentStatus      @default(CREATING)
+  createdAt           DateTime           @default(now())
+  expiresAt           DateTime?
+  dismissedAt         DateTime?
+  paidAt              DateTime?
+  creditedAt          DateTime?
+  checkedAt           DateTime?
+
+  @@unique([userId, mode, shopId, requestId])
+  @@unique([mode, shopId, providerId])
+  @@index([userId, mode, shopId, createdAt])
+  @@index([mode, shopId, creditedAt, checkedAt])
+}
+
+enum FundingSource {
+  BALANCE
+  SUBSCRIPTION
+  DIAGNOSTIC
+}
+
+model SubscriptionOrder {
+  id                 String              @id @default(cuid())
+  userId             String
+  user               User                @relation(fields: [userId], references: [id])
+  requestId          String              @db.VarChar(36)
+  planId             String              @db.VarChar(16)
+  planName           String              @db.VarChar(32)
+  amount             Decimal             @db.Decimal(20, 8)
+  credits            Decimal             @db.Decimal(20, 8)
+  requestsPerMinute  Int
+  concurrentRequests Int
+  method             String              @db.VarChar(16)
+  mode               String              @db.VarChar(4)
+  status             PaymentStatus       @default(CREATING)
+  createdAt          DateTime            @default(now())
+  fulfilledAt        DateTime?
+  cryptoPayment      Payment?
+  cardPayment        YooKassaPayment?
+  period             SubscriptionPeriod?
+
+  @@unique([userId, requestId])
+  @@index([userId, createdAt])
+}
+
+model SubscriptionPeriod {
+  id                 String              @id @default(cuid())
+  userId             String
+  user               User                @relation(fields: [userId], references: [id])
+  orderId            String              @unique
+  order              SubscriptionOrder   @relation(fields: [orderId], references: [id])
+  planId             String              @db.VarChar(16)
+  planName           String              @db.VarChar(32)
+  mode               String              @db.VarChar(4)
+  credits            Decimal             @db.Decimal(20, 8)
+  remainingCredits   Decimal             @db.Decimal(20, 8)
+  requestsPerMinute  Int
+  concurrentRequests Int
+  startsAt           DateTime
+  endsAt             DateTime
+  entries            SubscriptionEntry[]
+  requests           ApiRequest[]
+
+  @@index([userId, mode, startsAt, endsAt])
+}
+
+model SubscriptionEntry {
+  id          String             @id @default(cuid())
+  periodId    String
+  period      SubscriptionPeriod @relation(fields: [periodId], references: [id])
+  operationId String             @unique @db.VarChar(191)
+  amount      Decimal            @db.Decimal(20, 8)
+  createdAt   DateTime           @default(now())
+
+  @@index([periodId, createdAt])
+}

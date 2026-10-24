@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NETLIFY_BUILD_DEBUG = "true"
+
+[functions."crypto-reconcile"]
+  schedule = "* * * * *"
+
+[functions."yookassa-reconcile"]
+  schedule = "* * * * *"

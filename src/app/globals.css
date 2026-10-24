@@ -1,0 +1,39 @@
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+@source "./dashboard/docs";
+
+.cl-internal-560t1i,
+.cl-footerItem,
+.cl-headerSubtitle,
+.cl-logoBox,
+.cl-header {
+  display: none;
+}
+
+.auth-clerk .cl-footerPages,
+.auth-clerk a[href*="clerk.com"],
+.auth-clerk [aria-label*="Clerk"],
+.auth-clerk [alt*="Clerk"] {
+  display: none !important;
+}
+
+.auth-clerk-sign-in .cl-socialButtons {
+  display: grid !important;
+}
+
+.cl-card,
+.cl-cardBox {
+  box-shadow: none !important;
+}
+
+.cl-socialButtonsBlockButton,
+.cl-socialButtonsIconButton {
+  border: 1px solid #4a4a4a !important;
+  background: #353535 !important;
+  color: #f3f2ee !important;
+}
+
+.cl-socialButtonsBlockButton:hover,
+.cl-socialButtonsIconButton:hover {
+  background: #424242 !important;
+}

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="335 318 593 601" width="593" height="601">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c2c4c8"/>
+      <stop offset="0.48" stop-color="#9599a1"/>
+      <stop offset="1" stop-color="#59606b"/>
+    </linearGradient>
+    <linearGradient id="dark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b616b"/>
+      <stop offset="0.5" stop-color="#3d444f"/>
+      <stop offset="1" stop-color="#29313d"/>
+    </linearGradient>
+    <linearGradient id="head" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#626873"/>
+      <stop offset="0.52" stop-color="#404854"/>
+      <stop offset="1" stop-color="#29313e"/>
+    </linearGradient>
+    <mask id="hole"><rect width="1248" height="1248" fill="white"/><circle cx="768" cy="485" r="55.5" fill="black"/></mask>
+  </defs>
+  <!-- Upper beveled edge of the blade -->
+  <path d="M559 508 L559 544 Q559 562 544 578 L376 747 Q365 758 365 782 L365 846 Q365 861 374 873 L516 690 Q528 678 545 678 L714 678 L627 593 Z" fill="url(#metal)"/>
+  <!-- Lower edge and three stepped teeth -->
+  <path d="M365 846 L511 691 Q523 679 542 679 L643 679 Q621 682 621 706 L621 739 Q621 760 601 760 L558 760 Q542 760 542 778 L542 802 Q542 824 520 824 L493 824 Q475 824 475 841 L475 866 Q475 889 453 889 L408 889 Q365 889 365 846 Z" fill="url(#dark)"/>
+  <!-- Ring with its transparent circular opening -->
+  <path d="M728 348 C822 348 898 423 898 516 C898 609 822 683 729 683 C706 683 690 678 676 665 L579 568 C565 554 559 538 559 516 C559 423 635 348 728 348 Z" fill="url(#head)" mask="url(#hole)"/>
+</svg>

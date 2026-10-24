@@ -19,7 +19,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html
       lang="ru"
       style={{ scrollbarGutter: "stable" }}
-      className="[scrollbar-width:thin] [scrollbar-color:#42423d_#080808] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-[#080808] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#42423d] [&::-webkit-scrollbar-thumb:hover]:bg-[#777875]"
+      className="[scrollbar-width:thin] [scrollbar-color:#42423d_#080808] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-[#080808] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#42423d] [&::-webkit-scrollbar-thumb:hover]:bg-[#777875] [&_*]:[scrollbar-width:thin] [&_*]:[scrollbar-color:#42423d_#080808] [&_*::-webkit-scrollbar]:w-2 [&_*::-webkit-scrollbar-track]:bg-[#080808] [&_*::-webkit-scrollbar-thumb]:rounded-full [&_*::-webkit-scrollbar-thumb]:bg-[#42423d] [&_*::-webkit-scrollbar-thumb:hover]:bg-[#777875]"
     >
       <body className="min-h-screen bg-spirit-canvas font-body text-spirit-text antialiased selection:bg-spirit-accent selection:text-spirit-accent-ink">
         <ClerkProvider

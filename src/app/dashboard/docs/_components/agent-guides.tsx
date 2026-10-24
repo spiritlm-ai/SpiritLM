@@ -1,4 +1,5 @@
 import type { DocsCode } from "@/configs/types/docs.types";
+import { IMAGES } from "@/configs/paths/images.paths";
 import { LINKS } from "@/configs/paths/links.paths";
 import { PATHS } from "@/configs/paths/pages.paths";
 import { CodeBlock } from "./code-block";
@@ -9,6 +10,7 @@ export function ClaudeCodeGuide({ code }: { code: DocsCode }) {
     <GuideSection
       id="claude-code"
       title="Claude Code"
+      icon={IMAGES.AGENTS.CLAUDE_CODE}
       description="Claude Code подключается через совместимый Anthropic Messages endpoint SpiritLM."
     >
       <p>
@@ -46,6 +48,7 @@ export function CodexGuide({ code }: { code: DocsCode }) {
     <GuideSection
       id="codex"
       title="Codex"
+      icon={IMAGES.AGENTS.CODEX}
       description="Codex использует OpenAI Responses API через /v1/responses."
     >
       <p>
@@ -87,6 +90,8 @@ export function CursorGuide({ code }: { code: DocsCode }) {
     <GuideSection
       id="cursor"
       title="Cursor"
+      icon={IMAGES.AGENTS.CURSOR}
+      iconClassName="invert"
       description="Подключение через пользовательский OpenAI Base URL, если эта настройка доступна в вашей версии Cursor."
     >
       <ol className="list-decimal space-y-2 pl-5 marker:text-[#ffe02e]">
@@ -120,6 +125,8 @@ export function HermesGuide({ code }: { code: DocsCode }) {
     <GuideSection
       id="hermes"
       title="Hermes"
+      icon={IMAGES.AGENTS.HERMES}
+      iconClassName="invert"
       description="Выберите Custom endpoint и протокол Chat Completions через hermes model."
     >
       <ol className="list-decimal space-y-2 pl-5 marker:text-[#ffe02e]">
@@ -156,6 +163,7 @@ export function KimiGuide({ code }: { code: DocsCode }) {
     <GuideSection
       id="kimi-code"
       title="Kimi Code"
+      icon={IMAGES.AGENTS.KIMI_CODE}
       description="В актуальном Kimi Code CLI пользовательский Chat Completions provider имеет type = openai."
     >
       <p>
@@ -193,6 +201,8 @@ export function OpenCodeGuide({ code }: { code: DocsCode }) {
     <GuideSection
       id="opencode"
       title="OpenCode"
+      icon={IMAGES.AGENTS.OPEN_CODE}
+      iconClassName="invert"
       description="Custom provider через @ai-sdk/openai-compatible: этот адаптер использует Chat Completions."
     >
       <ol className="list-decimal space-y-2 pl-5 marker:text-[#ffe02e]">
@@ -227,6 +237,7 @@ export function VsCodeGuide({ code }: { code: DocsCode }) {
     <GuideSection
       id="vscode"
       title="VS Code"
+      icon={IMAGES.AGENTS.VS_CODE}
       description="Для текущего API SpiritLM используйте Cline с провайдером OpenAI Compatible."
     >
       <h3 className="font-semibold text-[#f3f2ee]">Cline</h3>

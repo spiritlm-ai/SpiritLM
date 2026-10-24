@@ -1,4 +1,5 @@
 export const LINKS = {
+  SPIRITCODE_PYPI: "https://pypi.org/project/spiritcode/",
   TELEGRAM_CHANNEL: "https://t.me/SpiritLM_AI",
   TELEGRAM_SUPPORT: "https://t.me/SpiritLM_Support",
   DOCS: {

@@ -1,6 +1,7 @@
 import { IMAGES } from "@/configs/paths/images.paths";
 
 export const AGENTS = [
+  { name: "SpiritCode", image: IMAGES.ICON },
   { name: "Claude Code", image: IMAGES.AGENTS.CLAUDE_CODE },
   { name: "Codex", image: IMAGES.AGENTS.CODEX },
   { name: "Cursor", image: IMAGES.AGENTS.CURSOR, invert: true },

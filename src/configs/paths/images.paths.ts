@@ -6,6 +6,7 @@ export const IMAGES = {
     ERROR: "/images/error.webp",
     NOT_FOUND: "/images/notfound.webp",
     LANDING: "/images/landing.png",
+    SPIRITCODE: "/images/spiritcode.png",
     CRYPTOBOT: "/images/cryptobot.png",
     CARD: "/images/card.png",
     BALANCE: "/images/balance.png",

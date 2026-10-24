@@ -25,6 +25,7 @@ export const PATHS = {
     KEYS: "/dashboard/keys",
   },
   DOCS: {
+    SPIRITCODE: "#spiritcode",
     CONNECTION: "#connection",
     MODELS: "#models",
     CHAT: "#chat",

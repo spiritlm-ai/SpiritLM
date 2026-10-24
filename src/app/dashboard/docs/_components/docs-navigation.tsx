@@ -16,6 +16,7 @@ const groups = [
   {
     title: "Настройка агентов",
     items: [
+      [PATHS.DOCS.SPIRITCODE, "SpiritCode"],
       [PATHS.DOCS.CLAUDE_CODE, "Claude Code"],
       [PATHS.DOCS.CODEX, "Codex"],
       [PATHS.DOCS.CURSOR, "Cursor"],

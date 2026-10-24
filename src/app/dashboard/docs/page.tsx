@@ -24,6 +24,7 @@ import {
 } from "./_components/agent-guides";
 import { DocsNavigation } from "./_components/docs-navigation";
 import { SdkGuides } from "./_components/sdk-guides";
+import { SpiritCodeGuide } from "./_components/spiritcode-guide";
 
 export const metadata: Metadata = {
   title: "Документация",
@@ -86,6 +87,7 @@ export default async function DashboardDocsPage() {
             <SdkGuides code={code} />
             <LimitsGuide />
             <ErrorsGuide code={code} />
+            <SpiritCodeGuide code={code} />
             <ClaudeCodeGuide code={code} />
             <CodexGuide code={code} />
             <CursorGuide code={code} />

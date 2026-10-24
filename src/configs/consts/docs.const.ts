@@ -1,4 +1,5 @@
 import { MODEL_GROUPS } from "./models.const";
+import { SPIRITCODE_INSTALL_COMMAND } from "./spiritcode.const";
 
 export const DOCS_MODEL_ID = "deepseek/deepseek-v4-flash";
 export const ALL_MODEL_IDS = MODEL_GROUPS.map((group) =>
@@ -20,6 +21,14 @@ export function docsCode(baseUrl: string) {
   ].join("\n");
 
   return {
+    spiritcodeInstall: SPIRITCODE_INSTALL_COMMAND,
+    spiritcodeLaunch: "sprt",
+    spiritcodeCommands: [
+      "sprt models",
+      "sprt account",
+      "sprt sessions",
+      "sprt resume <id>",
+    ].join("\n"),
     environment: [
       'export SPIRITLM_API_KEY="<ВАШ_КЛЮЧ_SPIRITLM>"',
       `export SPIRITLM_BASE_URL=${JSON.stringify(url)}`,

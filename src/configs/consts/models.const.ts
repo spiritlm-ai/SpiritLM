@@ -17,7 +17,6 @@ export const MODEL_GROUPS: ModelGroup[] = [
       { id: "openai/gpt-5.6-sol", name: "GPT 5.6 Sol", pricePerMillionTokens: "36 ₽", frontier: true },
       { id: "openai/gpt-5.6-terra", name: "GPT 5.6 Terra", pricePerMillionTokens: "11,80 ₽" },
       { id: "openai/gpt-5.6-luna", name: "GPT 5.6 Luna", pricePerMillionTokens: "4,60 ₽" },
-      { id: "openai/gpt-5.5", name: "GPT 5.5", pricePerMillionTokens: "36 ₽", frontier: true },
     ],
   },
   {

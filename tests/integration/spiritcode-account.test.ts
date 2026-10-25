@@ -6,6 +6,8 @@ import { GET as balance } from "../../src/app/v1/account/balance/route";
 import { GET as usage } from "../../src/app/v1/account/usage/route";
 import { GET as subscription } from "../../src/app/v1/account/subscription/route";
 import { GET as models } from "../../src/app/v1/spiritcode/models/route";
+import { GET as publicModels } from "../../src/app/v1/models/route";
+import { MODEL_GROUPS } from "../../src/configs/consts/models.const";
 import { withBackendFixture } from "../helpers/backend-fixture";
 import { buySubscription } from "../helpers/subscription-fixture";
 
@@ -136,7 +138,14 @@ test("SpiritCode metadata preserves unknown capabilities and exposes no upstream
     }));
     assert.equal(response.status, 200);
     const payload = await response.json();
-    assert.ok(payload.data.length);
+    const expectedIds = MODEL_GROUPS.flatMap((group) => group.models.map((model) => model.id));
+    assert.deepEqual(payload.data.map((model: { id: string }) => model.id), expectedIds);
+    const publicResponse = await publicModels(new Request("https://spiritlm.example/v1/models", {
+      headers: { Authorization: `Bearer ${key.secret}` },
+    }));
+    assert.equal(publicResponse.status, 200);
+    const publicPayload = await publicResponse.json();
+    assert.deepEqual(publicPayload.data.map((model: { id: string }) => model.id), expectedIds);
     for (const model of payload.data) {
       assert.equal(model.tool_calling, null);
       assert.equal(model.context_window, null);

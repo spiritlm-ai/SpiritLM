@@ -130,7 +130,8 @@ export async function availableModels() {
         : available.has(model.id)
           ? model.id
           : alias;
-      if (!available.has(upstreamId)) return [];
+      // The upstream discovery list can lag behind supported model IDs.
+      // Keep every configured SpiritLM model, with unknown limits when omitted.
       return [
         {
           id: model.id,

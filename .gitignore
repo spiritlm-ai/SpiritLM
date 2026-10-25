@@ -32,6 +32,7 @@ next-env.d.ts
 .agents
 .codex
 .aws
+.ruff_cache
 
 docs
 !src/app/dashboard/docs

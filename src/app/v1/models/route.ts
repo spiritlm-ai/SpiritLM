@@ -16,6 +16,7 @@ export async function GET(request: Request) {
         object: "model",
         created: 0,
         owned_by: "spiritlm",
+        context_window: model.contextWindow,
         max_output_tokens: model.maxOutputTokens,
       })),
     }, { headers: { "Cache-Control": "no-store" } });

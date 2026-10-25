@@ -3,6 +3,7 @@ export type ModelProvider = "openai" | "anthropic" | "deepseek" | "google" | "xa
 export type Model = {
   id: string;
   name: string;
+  contextWindow: number;
   pricePerMillionTokens: string;
   frontier?: boolean;
 };

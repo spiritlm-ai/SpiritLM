@@ -20,7 +20,7 @@ export async function GET(request: Request) {
         return {
           id: model.id,
           tool_calling: capabilities?.toolCalling ?? null,
-          context_window: capabilities?.contextWindow ?? null,
+          context_window: capabilities?.contextWindow ?? model.contextWindow,
           max_output_tokens: capabilities?.maxOutputTokens ?? model.maxOutputTokens ?? null,
           price_per_million_tokens: model.price.toFixed(8),
           currency: "RUB",

@@ -17,8 +17,8 @@ import type {
 let catalogCache: { models: ModelCatalog; expires: number } | undefined;
 let catalogLoad: Promise<ModelCatalog> | undefined;
 
-function outputLimit(model: UpstreamModel): number | undefined {
-  for (const value of [model.max_output_tokens, model.max_tokens]) {
+function positiveTokenLimit(values: unknown[]): number | undefined {
+  for (const value of values) {
     if (typeof value === "number" && Number.isSafeInteger(value) && value > 0) {
       return value;
     }
@@ -95,7 +95,21 @@ async function loadModelCatalog(): Promise<ModelCatalog> {
         (item): item is UpstreamModel =>
           !!item && typeof item === "object" && typeof item.id === "string",
       )
-      .map((item) => [item.id, { maxOutputTokens: outputLimit(item) }]),
+      .map((item) => [
+        item.id,
+        {
+          contextWindow: positiveTokenLimit([
+            item.context_window,
+            item.contextWindow,
+            item.context_length,
+            item.max_context_tokens,
+          ]),
+          maxOutputTokens: positiveTokenLimit([
+            item.max_output_tokens,
+            item.max_tokens,
+          ]),
+        },
+      ]),
   );
 }
 
@@ -130,14 +144,18 @@ export async function availableModels() {
         : available.has(model.id)
           ? model.id
           : alias;
+      // Claude catalog IDs use dashes for version separators; public IDs use dots.
+      const limits =
+        available.get(upstreamId) ?? available.get(alias.replace(/\./g, "-"));
       // The upstream discovery list can lag behind supported model IDs.
-      // Keep every configured SpiritLM model, with unknown limits when omitted.
+      // Keep every configured SpiritLM model, with verified context fallbacks when omitted.
       return [
         {
           id: model.id,
           name: model.name,
           upstreamId,
-          maxOutputTokens: available.get(upstreamId)?.maxOutputTokens,
+          contextWindow: limits?.contextWindow ?? model.contextWindow,
+          maxOutputTokens: limits?.maxOutputTokens,
           // Customer tariff per million tokens.
           price: modelPrice(model),
         },
@@ -171,6 +189,7 @@ export async function resolveModel(id: string) {
     id: configuredModel.id,
     name: configuredModel.name,
     upstreamId: cheapvibeModelAlias(configuredModel.id),
+    contextWindow: configuredModel.contextWindow,
     maxOutputTokens: undefined,
     price: modelPrice(configuredModel),
   };

@@ -148,7 +148,17 @@ test("SpiritCode metadata preserves unknown capabilities and exposes no upstream
     assert.deepEqual(publicPayload.data.map((model: { id: string }) => model.id), expectedIds);
     for (const model of payload.data) {
       assert.equal(model.tool_calling, null);
-      assert.equal(model.context_window, null);
+      const configured = MODEL_GROUPS.flatMap((group) => group.models)
+        .find((item) => item.id === model.id);
+      assert.ok(configured);
+      const expectedContext = model.id === "deepseek/deepseek-v4-flash"
+        ? 262_144
+        : configured.contextWindow;
+      assert.equal(model.context_window, expectedContext);
+      assert.equal(
+        publicPayload.data.find((item: { id: string }) => item.id === model.id).context_window,
+        expectedContext,
+      );
       assert.equal(model.sample_price, true);
       assert.equal(typeof model.price_per_million_tokens, "string");
       assert.equal(model.currency, "RUB");

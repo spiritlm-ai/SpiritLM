@@ -40,5 +40,6 @@ docs
 # local database migrations
 /migrations/
 *.sql
+!/prisma/migrations/*/migration.sql
 
 /spiritcode/

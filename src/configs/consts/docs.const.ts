@@ -1,15 +1,16 @@
 import { MODEL_GROUPS } from "./models.const";
 import { SPIRITCODE_INSTALL_COMMAND } from "./spiritcode.const";
+import type { ModelGroup } from "../types/models.types";
 
 export const DOCS_MODEL_ID = "deepseek/deepseek-v4-flash";
-export const ALL_MODEL_IDS = MODEL_GROUPS.map((group) =>
-  [group.name, ...group.models.map((model) => `  ${model.id}`)].join("\n"),
-).join("\n\n");
-
-export function docsCode(baseUrl: string) {
+export function docsCode(baseUrl: string, groups: ModelGroup[] = MODEL_GROUPS) {
   const url = baseUrl.replace(/\/+$/, "");
+  const models = groups.flatMap((group) => group.models);
+  const exampleModelId = models.find((model) => model.id === DOCS_MODEL_ID)?.id
+    ?? models[0]?.id
+    ?? DOCS_MODEL_ID;
   const request = {
-    model: DOCS_MODEL_ID,
+    model: exampleModelId,
     messages: [{ role: "user", content: "Привет!" }],
     max_tokens: 128,
   };
@@ -21,6 +22,9 @@ export function docsCode(baseUrl: string) {
   ].join("\n");
 
   return {
+    modelIds: groups.map((group) =>
+      [group.name, ...group.models.map((model) => `  ${model.id}`)].join("\n"),
+    ).join("\n\n"),
     spiritcodeInstall: SPIRITCODE_INSTALL_COMMAND,
     spiritcodeLaunch: "sprt",
     spiritcodeCommands: [
@@ -43,7 +47,7 @@ export function docsCode(baseUrl: string) {
     ].join("\n"),
     modelsResponse: JSON.stringify({
       object: "list",
-      data: [{ id: DOCS_MODEL_ID, object: "model", created: 0, owned_by: "spiritlm" }],
+      data: [{ id: exampleModelId, object: "model", created: 0, owned_by: "spiritlm" }],
     }, null, 2),
     chat: curl(false),
     anthropic: [
@@ -57,13 +61,13 @@ export function docsCode(baseUrl: string) {
       `curl -i ${JSON.stringify(`${url}/responses`)} \\`,
       '  -H "Authorization: Bearer $SPIRITLM_API_KEY" \\',
       '  -H "Content-Type: application/json" \\',
-      `  -d '${JSON.stringify({ model: DOCS_MODEL_ID, input: "Привет!", max_output_tokens: 128 }, null, 2)}'`,
+      `  -d '${JSON.stringify({ model: exampleModelId, input: "Привет!", max_output_tokens: 128 }, null, 2)}'`,
     ].join("\n"),
     chatResponse: JSON.stringify({
       id: "chatcmpl-example",
       object: "chat.completion",
       created: 1_792_540_800,
-      model: DOCS_MODEL_ID,
+      model: exampleModelId,
       choices: [{
         index: 0,
         message: { role: "assistant", content: "Привет! Чем помочь?" },
@@ -76,14 +80,14 @@ export function docsCode(baseUrl: string) {
       `data: ${JSON.stringify({
         id: "chatcmpl-example",
         object: "chat.completion.chunk",
-        model: DOCS_MODEL_ID,
+        model: exampleModelId,
         choices: [{ index: 0, delta: { content: "Привет!" }, finish_reason: null }],
       })}`,
       "",
       `data: ${JSON.stringify({
         id: "chatcmpl-example",
         object: "chat.completion.chunk",
-        model: DOCS_MODEL_ID,
+        model: exampleModelId,
         choices: [],
         usage: { prompt_tokens: 12, completion_tokens: 8, total_tokens: 20 },
       })}`,
@@ -111,7 +115,7 @@ client = OpenAI(
 
 try:
     response = client.chat.completions.create(
-        model="${DOCS_MODEL_ID}",
+        model="${exampleModelId}",
         messages=[{"role": "user", "content": "Привет!"}],
         max_tokens=128,
     )
@@ -125,7 +129,7 @@ except APIError as error:
     pythonStream: `# Используйте client из примера выше.
 try:
     with client.chat.completions.create(
-        model="${DOCS_MODEL_ID}",
+        model="${exampleModelId}",
         messages=[{"role": "user", "content": "Привет!"}],
         max_tokens=128,
         stream=True,
@@ -150,7 +154,7 @@ const client = new OpenAI({
 
 try {
   const { data, request_id } = await client.chat.completions.create({
-    model: "${DOCS_MODEL_ID}",
+    model: "${exampleModelId}",
     messages: [{ role: "user", content: "Привет!" }],
     max_tokens: 128,
   }).withResponse();
@@ -167,7 +171,7 @@ try {
     javascriptStream: `// Используйте client из примера выше.
 try {
   const { data: stream, request_id } = await client.chat.completions.create({
-    model: "${DOCS_MODEL_ID}",
+    model: "${exampleModelId}",
     messages: [{ role: "user", content: "Привет!" }],
     max_tokens: 128,
     stream: true,
@@ -186,13 +190,13 @@ try {
       "API Provider: OpenAI / OpenAI Compatible",
       `Base URL: ${url}`,
       "API Key: <ВАШ_КЛЮЧ_SPIRITLM>",
-      `Model ID: ${DOCS_MODEL_ID}`,
+      `Model ID: ${exampleModelId}`,
     ].join("\n"),
     hermes: [
       "model:",
       "  provider: custom",
       `  base_url: ${JSON.stringify(url)}`,
-      `  default: ${JSON.stringify(DOCS_MODEL_ID)}`,
+      `  default: ${JSON.stringify(exampleModelId)}`,
       "  api_mode: chat_completions",
     ].join("\n"),
     hermesLaunch: [
@@ -210,7 +214,7 @@ try {
       "",
       "[models.spiritlm]",
       'provider = "spiritlm"',
-      `model = ${JSON.stringify(DOCS_MODEL_ID)}`,
+      `model = ${JSON.stringify(exampleModelId)}`,
       "max_context_size = <КОНТЕКСТ_МОДЕЛИ_В_ТОКЕНАХ>",
     ].join("\n"),
     opencode: JSON.stringify({
@@ -220,15 +224,15 @@ try {
           npm: "@ai-sdk/openai-compatible",
           name: "SpiritLM",
           options: { baseURL: url, apiKey: "{env:SPIRITLM_API_KEY}" },
-          models: Object.fromEntries(MODEL_GROUPS.flatMap((group) =>
-            group.models.map((model) => [model.id, { name: model.name }]),
+          models: Object.fromEntries(models.map((model) =>
+            [model.id, { name: model.name }],
           )),
         },
       },
-      model: `spiritlm/${DOCS_MODEL_ID}`,
+      model: `spiritlm/${exampleModelId}`,
     }, null, 2),
     codex: [
-      `model = ${JSON.stringify(DOCS_MODEL_ID)}`,
+      `model = ${JSON.stringify(exampleModelId)}`,
       'model_provider = "spiritlm"',
       "",
       "[model_providers.spiritlm]",

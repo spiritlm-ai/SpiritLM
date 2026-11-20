@@ -6,6 +6,8 @@ import { availableModels, resolveModel } from "../src/lib/model-catalog";
 test("catalog keeps configured models when upstream discovery omits them", async () => {
   const originalFetch = globalThis.fetch;
   const originalKey = process.env.CHEAPVIBE_API_KEY;
+  const originalDatabaseUrl = process.env.DATABASE_URL;
+  delete process.env.DATABASE_URL;
   process.env.CHEAPVIBE_API_KEY = "test-upstream-key";
   globalThis.fetch = async (input, init) => {
     const request = input instanceof Request ? input : new Request(input, init);
@@ -29,6 +31,7 @@ test("catalog keeps configured models when upstream discovery omits them", async
     assert.deepEqual(models.map((model) => model.id), configured.map((model) => model.id));
     for (const model of models) {
       assert.ok(model.price.greaterThan(0));
+      assert.ok(model.contextWindow);
       assert.ok(Number.isSafeInteger(model.contextWindow));
       assert.ok(model.contextWindow > 16_000);
     }
@@ -60,5 +63,6 @@ test("catalog keeps configured models when upstream discovery omits them", async
     globalThis.fetch = originalFetch;
     if (originalKey === undefined) delete process.env.CHEAPVIBE_API_KEY;
     else process.env.CHEAPVIBE_API_KEY = originalKey;
+    if (originalDatabaseUrl !== undefined) process.env.DATABASE_URL = originalDatabaseUrl;
   }
 });

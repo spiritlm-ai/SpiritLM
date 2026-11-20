@@ -1,4 +1,5 @@
 export const CHEAPVIBE_BASE_URL = "https://ru.cheapvibecode.ru/v1";
+export const CHEAPVIBE_PROVIDER_ID = "cheapvibecode";
 
 export const PROXY_LIMITS = {
   BODY_BYTES: 1_048_576,

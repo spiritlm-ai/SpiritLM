@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ALL_MODEL_IDS } from "@/configs/consts/docs.const";
 import { PROXY_LIMITS, CATALOG_TIMEOUT_MS } from "@/configs/consts/proxy.const";
 import type { DocsCode } from "@/configs/types/docs.types";
 import { PATHS } from "@/configs/paths/pages.paths";
@@ -141,13 +140,12 @@ export function ModelsGuide({ code }: { code: DocsCode }) {
         вывода, дополнительно возвращается max_output_tokens — положительное целое число.
       </p>
       <p className="mt-3">
-        Цены в этот ответ не входят. Утверждённые тарифы в рублях за 1 млн токенов указаны в каталоге.
-        Доступность может меняться; полный список ID ниже отражает настройки SpiritLM и может быть шире
-        ответа API.
+        Цены в рублях за 1 млн суммарных токенов указаны в каталоге моделей.
+        Список ID обновляется вместе с каталогом.
       </p>
       <CodeBlock
-        title="Все настроенные ID моделей"
-        value={ALL_MODEL_IDS}
+        title="ID моделей в каталоге"
+        value={code.modelIds}
       />
     </GuideSection>
   );

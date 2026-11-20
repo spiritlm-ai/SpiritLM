@@ -5,14 +5,19 @@ import { Header } from "./_components/header";
 import { Navbar } from "./_components/navbar";
 import { Pricing } from "./_components/pricing";
 import { SpiritCode } from "./_components/spiritcode";
+import { connection } from "next/server";
+import { websiteModelGroups } from "@/lib/model-catalog";
 
-export default function Home() {
+export default async function Home() {
+  await connection();
+  const modelGroups = await websiteModelGroups();
+
   return (
     <div className="mx-auto overflow-hidden" id="top">
       <Navbar />
       <main>
         <Header />
-        <Catalog />
+        <Catalog groups={modelGroups} />
         <Agents />
         <SpiritCode />
         <Pricing />

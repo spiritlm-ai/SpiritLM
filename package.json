@@ -18,6 +18,7 @@
     "payments:reconcile": "tsx scripts/reconcile-payments.ts",
     "payments:reconcile:yookassa": "tsx scripts/reconcile-yookassa-payments.ts",
     "payments:check": "tsx scripts/check-crypto-pay.ts",
+    "catalog:sync": "tsx scripts/sync-cheapvibe-catalog.ts",
     "proxy:smoke": "tsx scripts/smoke-proxy.ts",
     "test:unit": "node --import tsx --test tests/*.test.ts"
   },

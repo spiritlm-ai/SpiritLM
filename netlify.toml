@@ -11,3 +11,6 @@
 
 [functions."yookassa-reconcile"]
   schedule = "* * * * *"
+
+[functions."cheapvibe-catalog-sync"]
+  schedule = "@hourly"

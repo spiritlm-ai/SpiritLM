@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { docsCode } from "@/configs/consts/docs.const";
 import { LINKS } from "@/configs/paths/links.paths";
 import { PATHS } from "@/configs/paths/pages.paths";
+import { websiteModelGroups } from "@/lib/model-catalog";
 import {
   ChatGuide,
   ConnectionGuide,
@@ -39,7 +40,7 @@ export default async function DashboardDocsPage() {
     ? "http"
     : "https";
   const baseUrl = `${protocol}://${host}/v1`;
-  const code = docsCode(baseUrl);
+  const code = docsCode(baseUrl, await websiteModelGroups());
 
   return (
     <main

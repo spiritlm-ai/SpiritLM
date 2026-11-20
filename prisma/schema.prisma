@@ -7,6 +7,12 @@ datasource db {
   provider = "mysql"
 }
 
+model ProviderCatalogSnapshot {
+  provider  String   @id @db.VarChar(64)
+  fetchedAt DateTime
+  models    Json
+}
+
 model User {
   id                  String               @id @default(cuid())
   clerkId             String               @unique @db.VarChar(191)

@@ -1,9 +1,22 @@
 import { IMAGES } from "../paths/images.paths";
-import type { ModelGroup } from "../types/models.types";
+import type { ModelGroup, ModelProvider } from "../types/models.types";
+
+export const CHEAPVIBE_MODEL_FAMILIES: Record<ModelProvider, string> = {
+  openai: "gpt-",
+  anthropic: "claude-",
+  deepseek: "deepseek-",
+  google: "gemini-",
+  xai: "grok-",
+};
+
+export const CHEAPVIBE_LEGACY_MODEL_IDS: ReadonlyMap<string, string> = new Map([
+  ["deepseek-v4-pro-0813", "deepseek-v4-pro"],
+  ["deepseek-v4.1-flash-1017", "deepseek-v4.1-flash"],
+  ["deepseek-v4-flash-0731", "deepseek-v4-flash"],
+]);
 
 // Context windows verified against the upstream /v1/models catalog on 2026-10-25.
-// Retained as fallbacks when upstream discovery omits a configured model.
-// Confirmed customer tariffs, in ₽ per 1 million tokens.
+// Preset catalog and sample prices per 1 MTok before the first successful sync.
 export const MODEL_GROUPS: ModelGroup[] = [
   {
     provider: "openai",

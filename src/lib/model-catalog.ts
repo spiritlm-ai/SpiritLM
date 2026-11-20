@@ -24,6 +24,7 @@ import type {
 
 let catalogCache: { models: unknown[]; expires: number } | undefined;
 let catalogLoad: Promise<unknown[]> | undefined;
+const upstreamBrand = /cheap[\s_-]*vibe(?:[\s_-]*code)?/i;
 
 function positiveTokenLimit(values: unknown[]): number | undefined {
   for (const value of values) {
@@ -53,8 +54,9 @@ function publicModelAlias(id: string): string {
   );
 }
 
-function publicModelName(model: ProviderModel): string {
-  return model.display_name?.split(" · ").at(-1)?.trim() || model.id;
+function publicModelName(model: ProviderModel, publicAlias: string): string {
+  const name = model.display_name?.split(" · ").at(-1)?.trim() || model.id;
+  return upstreamBrand.test(name) ? publicAlias : name;
 }
 
 function formatModelPrice(price: Prisma.Decimal): string {
@@ -100,9 +102,11 @@ async function syncedModelGroups() {
 
     for (const upstream of data) {
       const alias = cheapvibeModelAlias(upstream.id);
+      if (upstreamBrand.test(alias)) continue;
       if (cheapvibeModelProvider(alias, upstream.owned_by) !== group.provider) continue;
 
-      const id = `${providerPrefix}/${publicModelAlias(alias)}`;
+      const publicAlias = publicModelAlias(alias);
+      const id = `${providerPrefix}/${publicAlias}`;
       if (models.has(id) && alias !== cheapvibeModelAlias(id)) continue;
 
       const configured = group.models.find((model) => model.id === id);
@@ -110,7 +114,7 @@ async function syncedModelGroups() {
       models.set(id, {
         model: {
           id,
-          name: configured?.name ?? publicModelName(upstream),
+          name: configured?.name ?? publicModelName(upstream, publicAlias),
           contextWindow: upstream.context_window ?? configured?.contextWindow,
           pricePerMillionTokens: formatModelPrice(price),
           frontier: configured?.frontier,

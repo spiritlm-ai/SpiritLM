@@ -1,5 +1,10 @@
 export const PATHS = {
   HOME: "/",
+  CODE: {
+    ROOT: "/code",
+    FEATURES: "#features",
+    GET_STARTED: "#get-started",
+  },
   API: {
     DASHBOARD: {
       SUBSCRIPTION: "/api/dashboard/subscription",

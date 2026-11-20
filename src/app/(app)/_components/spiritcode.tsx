@@ -2,11 +2,13 @@
 
 import { IconCheck, IconCopy } from "@tabler/icons-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SPIRITCODE_INSTALL_COMMAND } from "@/configs/consts/spiritcode.const";
 import { IMAGES } from "@/configs/paths/images.paths";
 import { LINKS } from "@/configs/paths/links.paths";
+import { PATHS } from "@/configs/paths/pages.paths";
 
 export function SpiritCode() {
   const [copied, setCopied] = useState(false);
@@ -96,6 +98,9 @@ export function SpiritCode() {
               ? "Не удалось скопировать. Выделите команду и скопируйте вручную."
               : copied ? "Команда скопирована" : ""}
           </p>
+          <Button asChild variant="link" className="mt-2">
+            <Link href={PATHS.CODE.ROOT}>Подробнее о SpiritCode</Link>
+          </Button>
         </div>
         <div className="min-w-0 overflow-hidden rounded-xl bg-spirit-surface">
           <div aria-hidden="true" className="flex h-11 items-center gap-2 px-4">

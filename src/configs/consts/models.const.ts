@@ -270,7 +270,7 @@ export const MODEL_GROUPS: ModelGroup[] = [
   // GLM and Nemotron context windows and sample prices are based on the 2026-11-20 catalog.
   {
     provider: "z-ai",
-    name: "Zhipu AI",
+    name: "Z.AI",
     icon: IMAGES.AI.GLM,
     modelProviderName: "GLM",
     modelProviderIcon: IMAGES.AI.GLM,

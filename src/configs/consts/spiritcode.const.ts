@@ -1,6 +1,7 @@
 import type { SpiritCodeModelCapabilities } from "../types/spiritcode.types";
 
 export const SPIRITCODE_INSTALL_COMMAND = "pip install spiritcode";
+export const SPIRITCODE_LAUNCH_COMMAND = "sprt";
 
 // Fill only after verifying capabilities against the SpiritLM upstream deployment.
 // Unknown capabilities must stay null; model names alone are not evidence.

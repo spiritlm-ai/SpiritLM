@@ -1,6 +1,7 @@
 export const IMAGES = {
   LOGO: "/logo.png",
   ICON: "/icon.png",
+  SPRT: "/sprt.png",
   IMAGES: {
     THANKS: "/images/thanks.webp",
     ERROR: "/images/error.webp",

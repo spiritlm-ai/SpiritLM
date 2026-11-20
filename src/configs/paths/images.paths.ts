@@ -23,6 +23,8 @@ export const IMAGES = {
     GEMINI: "/ai/gemini.webp",
     XAI: "/ai/xai.webp",
     GROK: "/ai/grok.png",
+    GLM: "/ai/glm.webp",
+    NVIDIA: "/ai/nvidia.webp",
   },
   ICONS: {
     HOME: "/icons/home.svg",

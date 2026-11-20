@@ -460,7 +460,7 @@ function Metric({
     <div className="rounded-[14px] bg-[#242424] px-4 py-4">
       <p className="text-xs text-[#999994]">{label}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight tabular-nums">
-        {loading ? <Skeleton className="h-7 w-28" /> : (value ?? "Недоступно")}
+        {loading ? <Skeleton className="h-7 w-28" /> : (value ?? "-")}
       </p>
     </div>
   );

@@ -1,4 +1,4 @@
-export type ModelProvider = "openai" | "anthropic" | "deepseek" | "google" | "xai";
+export type ModelProvider = "openai" | "anthropic" | "deepseek" | "google" | "xai" | "z-ai" | "nvidia";
 
 export type Model = {
   id: string;

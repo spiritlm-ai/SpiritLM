@@ -222,7 +222,7 @@ export default function Dashboard() {
                   {summary ? (
                     `${summary.tokens.toLocaleString("ru-RU")} токенов`
                   ) : error ? (
-                    "Недоступно"
+                    "-"
                   ) : (
                     <Skeleton className="h-4 w-28" />
                   )}
@@ -348,7 +348,7 @@ export default function Dashboard() {
                     {summary ? (
                       summary.tokens.toLocaleString("ru-RU")
                     ) : error ? (
-                      "Недоступно"
+                      "-"
                     ) : (
                       <Skeleton className="h-7 w-24" />
                     )}
@@ -361,7 +361,7 @@ export default function Dashboard() {
                     {summary ? (
                       summary.requestCount.toLocaleString("ru-RU")
                     ) : error ? (
-                      "Недоступно"
+                      "-"
                     ) : (
                       <Skeleton className="h-7 w-16" />
                     )}
@@ -374,7 +374,7 @@ export default function Dashboard() {
                     {summary ? (
                       average.toLocaleString("ru-RU")
                     ) : error ? (
-                      "Недоступно"
+                      "-"
                     ) : (
                       <Skeleton className="h-7 w-16" />
                     )}{" "}
@@ -390,7 +390,7 @@ export default function Dashboard() {
                     {summary ? (
                       rubles(summary.cost)
                     ) : error ? (
-                      "Недоступно"
+                      "-"
                     ) : (
                       <Skeleton className="h-7 w-24" />
                     )}
@@ -544,7 +544,7 @@ function Metric({
     <div className="rounded-[14px] bg-[#242424] px-4 py-4">
       <p className="text-xs text-[#999994]">{label}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight tabular-nums">
-        {loading ? <Skeleton className="h-7 w-28" /> : (value ?? "Недоступно")}
+        {loading ? <Skeleton className="h-7 w-28" /> : (value ?? "-")}
       </p>
     </div>
   );

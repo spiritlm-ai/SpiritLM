@@ -43,6 +43,7 @@ test("next dev loads live models and prices without a database snapshot", async 
   const groups = await websiteModelGroups();
   const [astra, unbranded] = groups.flatMap((group) => group.models);
   assert.equal(astra.id, "openai/gpt-6.2-astra");
+  assert.equal(astra.frontier, true);
   assert.equal(astra.pricePerMillionTokens, "80 ₽");
   assert.equal(unbranded.id, "openai/gpt-catalog-test");
   assert.equal(unbranded.name, "gpt-catalog-test");

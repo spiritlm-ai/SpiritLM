@@ -37,8 +37,10 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanId, SubscriptionPlan> =
   };
 export const NOVA_EXCLUDED_MODELS: readonly string[] = [
   "openai/gpt-6-astra",
+  "openai/gpt-6.2-astra",
   "anthropic/claude-fable-5",
   "anthropic/claude-fable-5.1",
+  "anthropic/claude-fable-5.2",
 ];
 export function subscriptionAllowsModel(
   planId: string,

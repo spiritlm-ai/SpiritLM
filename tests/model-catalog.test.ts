@@ -17,6 +17,7 @@ test("catalog keeps configured models when upstream discovery omits them", async
         { id: "gpt-6-astra", context_window: 900_000, max_output_tokens: 8192 },
         { id: "openai/gpt-6-astra", context_window: 400_000, max_output_tokens: 4096 },
         { id: "anthropic/claude-fable-5", context_length: 800_000, max_output_tokens: 16384 },
+        { id: "claude-fable-5-2", context_window: 1_000_000, max_output_tokens: 131_072 },
         { id: "claude-opus-4-7", context_window: 700_000 },
         { id: "grok-4.7", context_window: -1, contextWindow: 500_000 },
         { id: "grok-4.6", context_window: "500000", max_context_tokens: 450_000 },
@@ -50,6 +51,9 @@ test("catalog keeps configured models when upstream discovery omits them", async
     assert.equal(claude.upstreamId, "anthropic/claude-fable-5");
     assert.equal(claude.maxOutputTokens, 16384);
     assert.equal(claude.contextWindow, 800_000);
+    const fable = await resolveModel("claude-fable-5-2");
+    assert.equal(fable.id, "anthropic/claude-fable-5.2");
+    assert.equal(fable.upstreamId, "claude-fable-5-2");
     for (const id of ["openai/gpt-6.1-sol", "anthropic/claude-fable-5.1"]) {
       const model = models.find((item) => item.id === id);
       assert.ok(model);

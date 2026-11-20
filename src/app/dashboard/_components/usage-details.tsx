@@ -34,7 +34,7 @@ export function UsageDetails({
               {item.value === undefined && loading ? (
                 <Skeleton className="h-6 w-20" />
               ) : (
-                (item.value?.toLocaleString("ru-RU") ?? "Недоступно")
+                (item.value?.toLocaleString("ru-RU") ?? "-")
               )}
             </dd>
           </div>
@@ -64,7 +64,7 @@ export function UsageDetails({
           ))}
         </ul>
       ) : !summary ? (
-        <p className="mt-3 text-sm text-[#858580]">Недоступно</p>
+        <p className="mt-3 text-sm text-[#858580]">-</p>
       ) : !summary.models.length ? (
         <p className="mt-3 text-sm text-[#858580]">Пока нет запросов</p>
       ) : (
@@ -125,7 +125,7 @@ export function CreditHistory({
           ))}
         </ul>
       ) : !summary ? (
-        <p className="mt-6 text-sm text-[#858580]">Недоступно</p>
+        <p className="mt-6 text-sm text-[#858580]">-</p>
       ) : !summary.credits.length ? (
         <p className="mt-6 text-sm text-[#858580]">Операций пока нет</p>
       ) : (

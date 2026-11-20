@@ -83,6 +83,8 @@ test("website and proxy use the same prices for the supported model families", a
     { id: "grok-4.7", owned_by: "xai", multiplier: 2 },
     { id: "composer-2.5-fast", owned_by: "xai", multiplier: 1 },
     { id: "glm-5.3", owned_by: "openai", multiplier: 1 },
+    { id: "nemotron-3.5-super-vl", owned_by: "cheapvibecode", multiplier: 0.001 },
+    { id: "unconfigured-model", owned_by: "openai", multiplier: 1 },
   ].map((model) => ({
     ...model,
     base_multiplier: 1,
@@ -101,6 +103,8 @@ test("website and proxy use the same prices for the supported model families", a
     ["deepseek/deepseek-v4.1-flash", "1,9 ₽"],
     ["google/gemini-3.8-flash", "20 ₽"],
     ["x-ai/grok-4.7", "20 ₽"],
+    ["z-ai/glm-5.3", "10 ₽"],
+    ["nvidia/nemotron-3.5-super-vl", "0,01 ₽"],
   ]);
 
   const deepseek = await resolveModel("deepseek/deepseek-v4.1-flash");
@@ -109,6 +113,10 @@ test("website and proxy use the same prices for the supported model families", a
   assert.equal(deepseek.maxOutputTokens, 16_000);
   assert.equal(deepseek.contextWindow, 125_000);
   assert.equal((await resolveModel("claude-fable-5-2")).id, "anthropic/claude-fable-5.2");
+  assert.equal((await resolveModel("glm-5.3")).id, "z-ai/glm-5.3");
+  const nemotron = await resolveModel("nvidia/nemotron-3.5-super-vl");
+  assert.equal(nemotron.upstreamId, "nemotron-3.5-super-vl");
+  assert.equal(nemotron.price.toFixed(), "0.01");
   await assert.rejects(resolveModel("composer-2.5-fast"), { code: "model_not_found" });
-  await assert.rejects(resolveModel("glm-5.3"), { code: "model_not_found" });
+  await assert.rejects(resolveModel("unconfigured-model"), { code: "model_not_found" });
 });

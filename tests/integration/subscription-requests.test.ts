@@ -90,8 +90,10 @@ test("Nova excludes expensive models and fallback always requires permission", a
     });
     for (const model of [
       "openai/gpt-6-astra",
+      "openai/gpt-6.2-astra",
       "anthropic/claude-fable-5",
       "anthropic/claude-fable-5.1",
+      "anthropic/claude-fable-5.2",
     ]) {
       assert.equal(
         (await beginApiRequest({ ...input(user.id, key.id), model })).code,
@@ -105,7 +107,7 @@ test("Nova excludes expensive models and fallback always requires permission", a
     const paid = unwrapAction(
       await beginApiRequest({
         ...input(user.id, key.id),
-        model: "openai/gpt-6-astra",
+        model: "openai/gpt-6.2-astra",
       }),
     );
     assert.equal(paid.paymentSource, "BALANCE");
@@ -317,7 +319,13 @@ test("bare model aliases cannot bypass Nova exclusions", async () =>
       where: { id: key.id },
       data: { useSubscription: true },
     });
-    for (const model of ["gpt-6-astra", "claude-fable-5", "claude-fable-5.1"]) {
+    for (const model of [
+      "gpt-6-astra",
+      "gpt-6.2-astra",
+      "claude-fable-5",
+      "claude-fable-5.1",
+      "claude-fable-5.2",
+    ]) {
       await assert.rejects(
         proxyChat({ ...body, model }, { ...context, diagnostic: false }),
         (error: unknown) =>

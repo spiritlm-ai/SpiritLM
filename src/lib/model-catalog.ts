@@ -271,14 +271,13 @@ export async function availableModels() {
       // CheapVibeCode exposes bare model IDs. Prefer those aliases even if
       // its catalog also happens to include a provider-prefixed ID.
       const alias = cheapvibeModelAlias(model.id);
-      const upstreamId = available.has(alias)
-        ? alias
-        : available.has(model.id)
-          ? model.id
-          : alias;
       // Claude catalog IDs use dashes for version separators; public IDs use dots.
-      const limits =
-        available.get(upstreamId) ?? available.get(alias.replace(/\./g, "-"));
+      const dashedAlias = alias.replace(/\./g, "-");
+      const upstreamIds = group.provider === "anthropic"
+        ? [alias, dashedAlias, model.id, `anthropic/${dashedAlias}`]
+        : [alias, model.id];
+      const upstreamId = upstreamIds.find((candidate) => available.has(candidate)) ?? alias;
+      const limits = available.get(upstreamId) ?? available.get(dashedAlias);
       // The upstream discovery list can lag behind supported model IDs.
       // Keep every configured SpiritLM model, with verified context fallbacks when omitted.
       return {

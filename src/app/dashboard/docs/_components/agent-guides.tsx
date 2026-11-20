@@ -14,23 +14,22 @@ export function ClaudeCodeGuide({ code }: { code: DocsCode }) {
       description="Claude Code подключается через совместимый Anthropic Messages endpoint SpiritLM."
     >
       <p>
-        Claude Code можно подключить через /v1/messages. Используйте модель Anthropic из каталога и ключ
-        SpiritLM. Запросы поддерживают текст и встроенные инструменты Claude; изображения и другие
+        Claude Code можно подключить через /v1/messages. Конфиг добавляет в меню /model все модели Anthropic
+        из каталога SpiritLM. Запросы поддерживают текст и встроенные инструменты Claude; изображения и другие
         мультимодальные блоки пока не поддерживаются.
       </p>
       <details className="mt-4 rounded-xl bg-[#111] p-4">
         <summary className="cursor-pointer rounded text-[#f3f2ee] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffe02e]">Настройка Claude Code</summary>
         <p className="mt-3">
-          Задайте URL и ключ в пользовательском
-          ~/.claude/settings.json (Windows: %USERPROFILE%\.claude\settings.json), сохранив остальные настройки.
+          Добавьте поля в пользовательский ~/.claude/settings.json (Windows: %USERPROFILE%\.claude\settings.json).
+          Claude Code сам добавляет /v1/messages к ANTHROPIC_BASE_URL.
         </p>
         <CodeBlock
           title="~/.claude/settings.json"
           value={code.claude}
         />
         <p className="mt-3">
-          Подставьте ключ вместо placeholder и выберите модель командой /model. Ключ в settings.json
-          хранится открытым текстом; ограничьте доступ к файлу.
+          Подставьте свой ключ, перезапустите Claude Code и выберите модель через /model.
         </p>
       </details>
       <p className="mt-4"><a
@@ -53,27 +52,25 @@ export function CodexGuide({ code }: { code: DocsCode }) {
     >
       <p>
         SpiritLM предоставляет /v1/responses с текстовым вводом, функциями и потоковыми событиями.
-        Выберите модель из каталога; изображения и другие мультимодальные элементы не поддерживаются,
+        Выберите модель из каталога. Изображения и другие мультимодальные элементы не поддерживаются,
         а вызов инструментов зависит от модели.
       </p>
       <details className="mt-4 rounded-xl bg-[#111] p-4">
         <summary className="cursor-pointer rounded text-[#f3f2ee] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffe02e]">Настройка Codex</summary>
         <p className="mt-3">
-          Базовый URL заканчивается на /v1: Codex сам добавляет /responses. Конфигурация
-          провайдера находится в пользовательском ~/.codex/config.toml (Windows:
-          %USERPROFILE%\.codex\config.toml).
+          Сохраните оба файла в ~/.codex (Windows: %USERPROFILE%\.codex). Профиль подключает провайдера
+          SpiritLM и загружает список моделей из JSON. Ключ читается из SPIRITLM_API_KEY.
         </p>
         <CodeBlock
-          title="~/.codex/config.toml"
+          title="~/.codex/spiritlm.config.toml"
           value={code.codex}
         />
-        <CodeBlock title="Проверка Responses API" value={code.responses} />
+        <CodeBlock title="~/.codex/spiritlm-models.json" value={code.codexModels} />
         <p className="mt-3">
-          Для профиля создайте ~/.codex/spiritlm.config.toml с верхнеуровневыми model и model_provider, затем
-          запускайте codex --profile spiritlm. В актуальном CLI профили хранятся в отдельных файлах: таблицы
-          [profiles.name] и верхнеуровневый profile больше не используются. Ключ передаётся через
-          SPIRITLM_API_KEY.
+          Запустите codex --profile spiritlm и выберите модель через /model. Можно также передать полный ID
+          при запуске через --model.
         </p>
+        <CodeBlock title="Проверка Responses API" value={code.responses} />
       </details>
       <p className="mt-4"><a
         href={LINKS.DOCS.CODEX}
@@ -97,13 +94,14 @@ export function CursorGuide({ code }: { code: DocsCode }) {
       <ol className="list-decimal space-y-2 pl-5 marker:text-[#ffe02e]">
         <li>Откройте Cursor Settings → Models и найдите настройки OpenAI API.</li>
         <li>Введите ключ SpiritLM. Включите Override OpenAI Base URL и задайте адрес ниже.</li>
-        <li>Добавьте Custom Model с точным ID из каталога. Сохраните настройки и выберите модель в чате.</li>
+        <li>Добавьте нужные модели через Custom Model, по одному ID из списка. Выберите модель в чате.</li>
         <li>Отправьте короткое сообщение и проверьте запрос в истории кабинета SpiritLM.</li>
       </ol>
       <CodeBlock
         title="Поля подключения Cursor"
-        value={code.cursor}
+        value={code.editorConnection}
       />
+      <CodeBlock title="ID для Custom Model" value={code.modelIds} />
       <p className="mt-4">
         Поддержка пользовательских моделей и Agent зависит от версии Cursor и протокола запросов. BYOK не
         распространяется на все функции редактора: например, Tab использует собственные модели Cursor. Если
@@ -127,26 +125,19 @@ export function HermesGuide({ code }: { code: DocsCode }) {
       title="Hermes"
       icon={IMAGES.AGENTS.HERMES}
       iconClassName="invert"
-      description="Выберите Custom endpoint и протокол Chat Completions через hermes model."
+      description="Конфиг провайдера SpiritLM со всеми моделями для Chat Completions."
     >
       <ol className="list-decimal space-y-2 pl-5 marker:text-[#ffe02e]">
-        <li>Задайте переменные из быстрого старта. Для custom endpoint передайте ключ также через OPENAI_API_KEY.</li>
-        <li>Запустите hermes model, выберите Custom endpoint, укажите Base URL SpiritLM, ключ и полный ID модели.</li>
-        <li>Выберите chat_completions, если мастер предлагает выбор протокола. Запустите hermes и отправьте короткое сообщение.</li>
+        <li>Экспортируйте SPIRITLM_API_KEY из быстрого старта.</li>
+        <li>Добавьте providers.spiritlm в ~/.hermes/config.yaml.</li>
+        <li>Запустите hermes model и выберите SpiritLM и нужную модель.</li>
       </ol>
-      <CodeBlock
-        title="Терминал"
-        value={code.hermesLaunch}
-      />
-      <p className="mt-4">Проверьте блок model в ~/.hermes/config.yaml; заменяйте только соответствующие поля существующего конфига:</p>
       <CodeBlock
         title="~/.hermes/config.yaml"
         value={code.hermes}
       />
       <p className="mt-4">
-        Для смены модели повторите hermes model или измените model.default. Если сохраняете ключ через
-        мастер, держите файлы ~/.hermes приватными. Фоновые задачи и инструменты могут создавать
-        дополнительные запросы — учитывайте общий лимит аккаунта.
+        В запущенной сессии смените модель командой <code>/model custom:spiritlm:&lt;ID&gt;</code>.
       </p>
       <p className="mt-3"><a
         href={LINKS.DOCS.HERMES}
@@ -164,28 +155,31 @@ export function KimiGuide({ code }: { code: DocsCode }) {
       id="kimi-code"
       title="Kimi Code"
       icon={IMAGES.AGENTS.KIMI_CODE}
-      description="В актуальном Kimi Code CLI пользовательский Chat Completions provider имеет type = openai."
+      description="Конфиг Kimi Code CLI с моделями SpiritLM и их окнами контекста."
     >
       <p>
-        Добавьте provider и модель в ~/.kimi-code/config.toml. Для старого kimi-cli путь и тип провайдера
-        могут отличаться; пример ниже относится к текущему Kimi Code CLI. Сначала экспортируйте
-        SPIRITLM_API_KEY.
-      </p>
-      <p className="mt-3">
-        Перед сохранением замените placeholder max_context_size положительным целым числом из спецификации
-        выбранной модели. Это длина контекста, а не max_output_tokens из /v1/models. Без замены шаблон не
-        является валидным TOML.
+        Экспортируйте SPIRITLM_API_KEY и добавьте настройки в ~/.kimi-code/config.toml. Если файл уже
+        существует, поместите default_model перед первой секцией в квадратных скобках.
       </p>
       <CodeBlock
         title="~/.kimi-code/config.toml"
         value={code.kimi}
       />
-      <p className="mt-4">
-        api_key_env читает ключ из окружения без сохранения секрета в конфиге. Запустите kimi -m spiritlm,
-        отправьте короткое сообщение и проверьте историю SpiritLM. Для дополнительной модели создайте другую
-        запись [models.&lt;alias&gt;] и выбирайте её через kimi -m &lt;alias&gt;. Не используйте
-        openai_responses: этот протокол SpiritLM пока не предоставляет.
-      </p>
+      {code.kimiModelId && (
+        <p className="mt-4">
+          Запустите kimi, чтобы использовать модель по умолчанию, или укажите полный ID,
+          например <code>kimi -m {code.kimiModelId}</code>.
+        </p>
+      )}
+      {code.kimiModelsWithoutContext && (
+        <>
+          <p className="mt-4">
+            Для моделей ниже добавьте отдельные блоки [models.&quot;ID&quot;], когда будет известен обязательный
+            max_context_size из спецификации модели.
+          </p>
+          <CodeBlock title="Модели без данных об окне контекста" value={code.kimiModelsWithoutContext} />
+        </>
+      )}
       <p className="mt-3"><a
         href={LINKS.DOCS.KIMI_CODE}
         target="_blank"
@@ -203,22 +197,25 @@ export function OpenCodeGuide({ code }: { code: DocsCode }) {
       title="OpenCode"
       icon={IMAGES.AGENTS.OPEN_CODE}
       iconClassName="invert"
-      description="Custom provider через @ai-sdk/openai-compatible: этот адаптер использует Chat Completions."
+      description="Готовые конфиги для OpenCode V2 и V1 со всеми моделями SpiritLM."
     >
       <ol className="list-decimal space-y-2 pl-5 marker:text-[#ffe02e]">
         <li>Экспортируйте SPIRITLM_API_KEY из быстрого старта в том же терминале.</li>
-        <li>Создайте opencode.json в корне проекта или объедините provider.spiritlm с существующим конфигом.</li>
-        <li>Запустите opencode и выберите SpiritLM через /models. Отправьте сообщение и проверьте историю запросов.</li>
+        <li>Проверьте версию командой opencode --version и выберите соответствующий конфиг.</li>
+        <li>Сохраните opencode.json в корне проекта. В существующий конфиг добавьте providers.spiritlm для V2 или provider.spiritlm для V1.</li>
+        <li>Запустите opencode и выберите модель SpiritLM через /models.</li>
       </ol>
       <CodeBlock
-        title="opencode.json"
+        title="opencode.json · V2"
         value={code.opencode}
       />
-      <p className="mt-4">Ключ берётся из окружения через {"{env:SPIRITLM_API_KEY}"}
-        . В поле model сначала идёт имя провайдера OpenCode, затем полный ID SpiritLM:
-        spiritlm/deepseek/deepseek-v4-flash. В API отправляется только deepseek/deepseek-v4-flash.
+      <CodeBlock title="opencode.json · V1" value={code.opencodeV1} />
+      <p className="mt-4">
+        Оба конфига читают ключ из SPIRITLM_API_KEY и используют Chat Completions. Поле model задаёт
+        модель по умолчанию. Например, <code>spiritlm/{code.exampleModelId}</code> отправляется в API
+        как <code>{code.exampleModelId}</code>.
       </p>
-      <p className="mt-3">Список в конфиге содержит все настроенные модели; фактическую доступность проверьте через <a
+      <p className="mt-3">Текущую доступность моделей проверьте через <a
         href={PATHS.DOCS.MODELS}
         className="text-[#ffe02e] hover:underline"
       >GET /v1/models</a>. Для работы агента выбранная модель должна поддерживать tools.</p>
@@ -243,7 +240,7 @@ export function VsCodeGuide({ code }: { code: DocsCode }) {
       <h3 className="font-semibold text-[#f3f2ee]">Cline</h3>
       <ol className="mt-3 list-decimal space-y-2 pl-5 marker:text-[#ffe02e]">
         <li>Установите Cline из Marketplace VS Code и откройте настройки расширения.</li>
-        <li>Выберите API Provider → OpenAI Compatible. Введите Base URL, API Key и Model ID по примеру ниже.</li>
+        <li>Выберите API Provider → OpenAI Compatible. Введите Base URL и API Key, затем выберите или введите ID модели из списка.</li>
         <li>
           В Model Configuration задайте контекст, лимит вывода и возможности по спецификации модели. Не
           включайте изображения или другие функции, которых модель не поддерживает.
@@ -255,12 +252,10 @@ export function VsCodeGuide({ code }: { code: DocsCode }) {
       </ol>
       <CodeBlock
         title="Значения для Cline"
-        value={code.cursor.replace("OpenAI / OpenAI Compatible", "OpenAI Compatible")}
+        value={code.editorConnection}
       />
-      <p className="mt-3">Если список моделей не загрузился, скопируйте ID из <a
-        href={PATHS.DOCS.MODELS}
-        className="text-[#ffe02e] hover:underline"
-      >раздела моделей</a>. <a
+      <CodeBlock title="ID для Model ID" value={code.modelIds} />
+      <p className="mt-3"><a
         href={LINKS.DOCS.CLINE}
         target="_blank"
         rel="noreferrer"
@@ -268,8 +263,7 @@ export function VsCodeGuide({ code }: { code: DocsCode }) {
       >Официальная инструкция Cline</a>.</p>
       <h3 className="mt-6 font-semibold text-[#f3f2ee]">Расширения Codex и Claude Code</h3>
       <p className="mt-3">
-        Установка расширения не меняет требуемый API. Подключение Codex и Claude Code к SpiritLM пока
-        недоступно по тем же причинам, что и в CLI. Требования и условные настройки приведены в разделах{" "}
+        Настройки провайдеров для расширений приведены в разделах{" "}
       <a
         href={PATHS.DOCS.CODEX}
         className="text-[#ffe02e] hover:underline"
@@ -277,6 +271,10 @@ export function VsCodeGuide({ code }: { code: DocsCode }) {
         href={PATHS.DOCS.CLAUDE_CODE}
         className="text-[#ffe02e] hover:underline"
       >Claude Code</a>.</p>
+      <p className="mt-3">
+        Для расширения Claude Code также задайте ANTHROPIC_BASE_URL и ANTHROPIC_AUTH_TOKEN в пользовательской
+        настройке VS Code <code>claudeCode.environmentVariables</code>.
+      </p>
     </GuideSection>
   );
 }

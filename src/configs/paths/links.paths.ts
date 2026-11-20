@@ -5,7 +5,7 @@ export const LINKS = {
   DOCS: {
     OPENAI_SDK: "https://developers.openai.com/api/docs/libraries",
     CODEX: "https://learn.chatgpt.com/docs/config-file/config-advanced",
-    CLAUDE_CODE: "https://code.claude.com/docs/en/llm-gateway",
+    CLAUDE_CODE: "https://code.claude.com/docs/en/llm-gateway-connect",
     CURSOR: "https://cursor.com/help/models-and-usage/api-keys",
     HERMES: "https://hermes-agent.nousresearch.com/docs/user-guide/configuring-models/",
     KIMI_CODE: "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files",

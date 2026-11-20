@@ -6,9 +6,16 @@ export const DOCS_MODEL_ID = "deepseek/deepseek-v4-flash";
 export function docsCode(baseUrl: string, groups: ModelGroup[] = MODEL_GROUPS) {
   const url = baseUrl.replace(/\/+$/, "");
   const models = groups.flatMap((group) => group.models);
+  const claudeModels = groups.filter((group) => group.provider === "anthropic")
+    .flatMap((group) => group.models);
+  const claudeModelId = claudeModels.find((model) => model.id === "anthropic/claude-sonnet-4.6")?.id
+    ?? claudeModels[0]?.id;
+  const kimiModels = models.filter((model) => model.contextWindow !== undefined);
+  const openCodeModels = Object.fromEntries(models.map((model) => [model.id, { name: model.name }]));
   const exampleModelId = models.find((model) => model.id === DOCS_MODEL_ID)?.id
     ?? models[0]?.id
     ?? DOCS_MODEL_ID;
+  const kimiModelId = kimiModels.find((model) => model.id === exampleModelId)?.id ?? kimiModels[0]?.id;
   const request = {
     model: exampleModelId,
     messages: [{ role: "user", content: "Привет!" }],
@@ -55,7 +62,7 @@ export function docsCode(baseUrl: string, groups: ModelGroup[] = MODEL_GROUPS) {
       '  -H "x-api-key: $SPIRITLM_API_KEY" \\',
       '  -H "anthropic-version: 2023-06-01" \\',
       '  -H "content-type: application/json" \\',
-      `  -d '${JSON.stringify({ model: "anthropic/claude-sonnet-4.6", max_tokens: 128, messages: [{ role: "user", content: "Привет!" }] }, null, 2)}'`,
+      `  -d '${JSON.stringify({ model: claudeModelId ?? exampleModelId, max_tokens: 128, messages: [{ role: "user", content: "Привет!" }] }, null, 2)}'`,
     ].join("\n"),
     responses: [
       `curl -i ${JSON.stringify(`${url}/responses`)} \\`,
@@ -186,54 +193,72 @@ try {
   console.error("Поток прерван:", error);
   // Не повторяйте генерацию автоматически.
 }`,
-    cursor: [
-      "API Provider: OpenAI / OpenAI Compatible",
+    editorConnection: [
       `Base URL: ${url}`,
       "API Key: <ВАШ_КЛЮЧ_SPIRITLM>",
-      `Model ID: ${exampleModelId}`,
     ].join("\n"),
     hermes: [
-      "model:",
-      "  provider: custom",
-      `  base_url: ${JSON.stringify(url)}`,
-      `  default: ${JSON.stringify(exampleModelId)}`,
-      "  api_mode: chat_completions",
-    ].join("\n"),
-    hermesLaunch: [
-      'export OPENAI_API_KEY="$SPIRITLM_API_KEY"',
-      "hermes model",
-      "hermes",
+      "providers:",
+      "  spiritlm:",
+      "    name: SpiritLM",
+      `    api: ${JSON.stringify(url)}`,
+      "    key_env: SPIRITLM_API_KEY",
+      "    transport: chat_completions",
+      `    default_model: ${JSON.stringify(exampleModelId)}`,
+      models.length ? "    models:" : "    models: []",
+      ...models.map((model) => `      - ${JSON.stringify(model.id)}`),
     ].join("\n"),
     kimi: [
-      'default_model = "spiritlm"',
-      "",
+      ...(kimiModelId ? [`default_model = ${JSON.stringify(kimiModelId)}`, ""] : []),
       "[providers.spiritlm]",
       'type = "openai"',
       `base_url = ${JSON.stringify(url)}`,
       'api_key_env = "SPIRITLM_API_KEY"',
-      "",
-      "[models.spiritlm]",
-      'provider = "spiritlm"',
-      `model = ${JSON.stringify(exampleModelId)}`,
-      "max_context_size = <КОНТЕКСТ_МОДЕЛИ_В_ТОКЕНАХ>",
+      ...kimiModels.flatMap((model) => [
+        "",
+        `[models.${JSON.stringify(model.id)}]`,
+        'provider = "spiritlm"',
+        `model = ${JSON.stringify(model.id)}`,
+        `display_name = ${JSON.stringify(model.name)}`,
+        `max_context_size = ${model.contextWindow}`,
+      ]),
     ].join("\n"),
+    kimiModelId,
+    kimiModelsWithoutContext: models.filter((model) => model.contextWindow === undefined)
+      .map((model) => model.id).join("\n"),
     opencode: JSON.stringify({
       $schema: "https://opencode.ai/config.json",
+      model: `spiritlm/${exampleModelId}`,
+      providers: {
+        spiritlm: {
+          name: "SpiritLM",
+          env: ["SPIRITLM_API_KEY"],
+          package: "@opencode/ai/providers/openai-compatible",
+          settings: { baseURL: url },
+          models: Object.fromEntries(models.map((model) => [model.id, {
+            name: model.name,
+            capabilities: { input: ["text"], output: ["text"] },
+            limit: model.contextWindow === undefined ? undefined : { context: model.contextWindow },
+          }])),
+        },
+      },
+    }, null, 2),
+    opencodeV1: JSON.stringify({
+      model: `spiritlm/${exampleModelId}`,
       provider: {
         spiritlm: {
           npm: "@ai-sdk/openai-compatible",
           name: "SpiritLM",
           options: { baseURL: url, apiKey: "{env:SPIRITLM_API_KEY}" },
-          models: Object.fromEntries(models.map((model) =>
-            [model.id, { name: model.name }],
-          )),
+          models: openCodeModels,
         },
       },
-      model: `spiritlm/${exampleModelId}`,
     }, null, 2),
+    exampleModelId,
     codex: [
       `model = ${JSON.stringify(exampleModelId)}`,
       'model_provider = "spiritlm"',
+      'model_catalog_json = "spiritlm-models.json"',
       "",
       "[model_providers.spiritlm]",
       'name = "SpiritLM"',
@@ -243,12 +268,35 @@ try {
       "request_max_retries = 0",
       "stream_max_retries = 0",
     ].join("\n"),
+    codexModels: JSON.stringify({
+      models: models.map((model, index) => ({
+        slug: model.id,
+        display_name: model.name,
+        visibility: "list",
+        supported_in_api: true,
+        priority: index,
+        base_instructions: "",
+        supported_reasoning_levels: [],
+        shell_type: "shell_command",
+        supports_reasoning_summaries: false,
+        supports_reasoning_summary_parameter: false,
+        support_verbosity: false,
+        truncation_policy: { mode: "tokens", limit: 10_000 },
+        context_window: model.contextWindow,
+        experimental_supported_tools: [],
+        input_modalities: ["text"],
+      })),
+    }, null, 2),
     claude: JSON.stringify({
       env: {
-        ANTHROPIC_BASE_URL: url,
+        ANTHROPIC_BASE_URL: url.replace(/\/v1$/, ""),
         ANTHROPIC_AUTH_TOKEN: "<ВАШ_КЛЮЧ_SPIRITLM>",
       },
-      model: "anthropic/claude-sonnet-4.6",
+      model: claudeModelId,
+      modelPicker: {
+        replaceBuiltInOptions: true,
+        options: claudeModels.map((model) => ({ model: model.id, label: model.name })),
+      },
     }, null, 2),
   };
 }

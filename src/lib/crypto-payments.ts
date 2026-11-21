@@ -56,7 +56,6 @@ export async function createCryptoPayment(
         currency_type: "fiat",
         fiat: "RUB",
         amount: payment.amount.toFixed(2),
-        // Crypto Pay API still uses the TON asset code after the TON → GRAM rename.
         accepted_assets: "USDT,TON",
         expires_in: PAYMENT_LIMITS.INVOICE_SECONDS,
         payload: payment.id,

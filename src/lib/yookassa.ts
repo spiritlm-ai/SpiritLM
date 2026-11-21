@@ -6,7 +6,6 @@ import { ApiError } from "./api-error";
 import { http } from "./http-client";
 
 export function yooKassaPaymentMethod(returnUrl: string) {
-  // The persisted return marker identifies the original request body for recovery.
   return new URL(returnUrl).searchParams.get("payment_method") === "sbp"
     ? "sbp"
     : "bank_card";

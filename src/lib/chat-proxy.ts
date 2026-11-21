@@ -320,7 +320,6 @@ export async function proxyChat(
   const stream = new ReadableStream<Uint8Array>({
     async pull(output) {
       try {
-        // Pull only as the client reads, retaining backpressure.
         while (true) {
           const boundary = pending.indexOf("\n\n");
           if (boundary >= 0) {

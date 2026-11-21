@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { docsCode } from "@/configs/consts/docs.const";
+import { SITE_API_BASE_URL } from "@/configs/consts/site.const";
 import { LINKS } from "@/configs/paths/links.paths";
 import { PATHS } from "@/configs/paths/pages.paths";
 import { websiteModelGroups } from "@/lib/model-catalog";
@@ -32,14 +32,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardDocsPage() {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("host") ?? "localhost:3000";
-  const forwardedProtocol = requestHeaders.get("x-forwarded-proto");
-  const localHost = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host);
-  const protocol = forwardedProtocol === "http" || (!forwardedProtocol && localHost)
-    ? "http"
-    : "https";
-  const baseUrl = `${protocol}://${host}/v1`;
+  const baseUrl = SITE_API_BASE_URL;
   const code = docsCode(baseUrl, await websiteModelGroups());
 
   return (

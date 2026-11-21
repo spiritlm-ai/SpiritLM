@@ -13,7 +13,6 @@ export function cryptoBotConfig(): CryptoBotConfig {
   const token = mode === "test"
     ? process.env.CRYPTO_BOT_TOKEN_TEST
     : process.env.CRYPTO_BOT_TOKEN;
-  // Crypto Pay tokens use the application ID as the numeric prefix.
   const appId = token?.match(/^(\d{1,32}):\S+$/)?.[1];
   if (!token || !appId) {
     throw new ApiError(503, "payments_disabled", "Пополнение временно недоступно");

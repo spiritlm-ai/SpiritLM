@@ -17,9 +17,6 @@ export const CHEAPVIBE_LEGACY_MODEL_IDS: ReadonlyMap<string, string> = new Map([
   ["deepseek-v4-flash-0731", "deepseek-v4-flash"],
 ]);
 
-// Context windows verified against the upstream /v1/models catalog on 2026-10-25.
-// Preset catalog and sample prices per 1 MTok before the first successful sync.
-// Frontier highlights the current upper-tier entries in the supported model families.
 export const MODEL_GROUPS: ModelGroup[] = [
   {
     provider: "openai",
@@ -267,7 +264,6 @@ export const MODEL_GROUPS: ModelGroup[] = [
       },
     ],
   },
-  // GLM and Nemotron context windows and sample prices are based on the 2026-11-20 catalog.
   {
     provider: "z-ai",
     name: "Z.AI",
@@ -332,7 +328,6 @@ export const MODEL_GROUPS: ModelGroup[] = [
   },
 ];
 
-// Landing preset with a sample price per 1 MTok based on the upstream multiplier.
 export const LANDING_DEEPSEEK_FLASH_ABLITERATED: Model = {
   id: "deepseek/deepseek-v4.1-flash-1017-abliterated",
   name: "DeepSeek V4.1 Flash Abliterated",

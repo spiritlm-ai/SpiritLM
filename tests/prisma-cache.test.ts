@@ -12,7 +12,6 @@ test("development reload replaces a client cached before the YooKassa schema exi
       database: "unused",
     }),
   });
-  // Reproduce the shape of the client retained by Next.js before generation.
   const staleClient = new Proxy(previousClient, {
     get(target, key, receiver) {
       if (key === "yooKassaPayment") return undefined;

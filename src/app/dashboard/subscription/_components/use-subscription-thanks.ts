@@ -28,8 +28,6 @@ export function useSubscriptionThanks(
       );
     }
 
-    // Remember pending invoices across the external payment redirect. Historical
-    // paid orders should never trigger a celebration on an ordinary page visit.
     for (const order of [...(orders ?? []), ...(checkoutOrder ? [checkoutOrder] : [])]) {
       if (shown.current.has(order.id)) continue;
       if (["CREATING", "PENDING"].includes(order.status)) {
@@ -48,7 +46,6 @@ export function useSubscriptionThanks(
     try {
       sessionStorage.setItem(storageKey, JSON.stringify([...tracked.current]));
     } catch {
-      // In-memory tracking still works when browser storage is unavailable.
     }
   }, [orders, checkoutOrder]);
 

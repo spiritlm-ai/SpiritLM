@@ -1,5 +1,5 @@
 import { IMAGES } from "../paths/images.paths";
-import type { ModelGroup, ModelProvider } from "../types/models.types";
+import type { Model, ModelGroup, ModelProvider } from "../types/models.types";
 
 export const CHEAPVIBE_MODEL_FAMILIES: Record<ModelProvider, string> = {
   openai: "gpt-",
@@ -331,3 +331,37 @@ export const MODEL_GROUPS: ModelGroup[] = [
     ],
   },
 ];
+
+// Landing preset with a sample price per 1 MTok based on the upstream multiplier.
+export const LANDING_DEEPSEEK_FLASH_ABLITERATED: Model = {
+  id: "deepseek/deepseek-v4.1-flash-1017-abliterated",
+  name: "DeepSeek V4.1 Flash Abliterated",
+  pricePerMillionTokens: "10 ₽",
+};
+
+export const LANDING_MODEL_SELECTION = [
+  {
+    provider: "anthropic",
+    modelIds: [
+      "anthropic/claude-fable-5.2",
+      "anthropic/claude-opus-5.5",
+      "anthropic/claude-sonnet-5.5",
+    ],
+  },
+  {
+    provider: "openai",
+    modelIds: [
+      "openai/gpt-6.2-astra",
+      "openai/gpt-6.2-sol",
+      "openai/gpt-6-luna",
+    ],
+  },
+  {
+    provider: "deepseek",
+    modelIds: [
+      "deepseek/deepseek-v4.1-flash",
+      "deepseek/deepseek-v4-pro",
+      LANDING_DEEPSEEK_FLASH_ABLITERATED.id,
+    ],
+  },
+] satisfies { provider: ModelProvider; modelIds: string[] }[];

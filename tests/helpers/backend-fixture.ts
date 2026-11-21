@@ -54,8 +54,8 @@ export async function withBackendFixture(
     if (url.endsWith("/models"))
       return Response.json({
         data: [
-          { id: "deepseek-v4-flash", context_window: 262_144, max_output_tokens: 128_000 },
-          { id: "deepseek-v4.1-flash", max_output_tokens: 393_216 },
+          { id: "deepseek-v4-flash", multiplier: 0.09, context_window: 262_144, max_output_tokens: 128_000 },
+          { id: "deepseek-v4.1-flash", multiplier: 0.09, max_output_tokens: 393_216 },
         ],
       });
     assert.equal(url, "https://ru.cheapvibecode.ru/v1/chat/completions");

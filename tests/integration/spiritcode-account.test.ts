@@ -138,14 +138,14 @@ test("SpiritCode metadata preserves unknown capabilities and exposes no upstream
     }));
     assert.equal(response.status, 200);
     const payload = await response.json();
-    const expectedIds = MODEL_GROUPS.flatMap((group) => group.models.map((model) => model.id));
-    assert.deepEqual(payload.data.map((model: { id: string }) => model.id), expectedIds);
+    const expectedIds = ["deepseek/deepseek-v4.1-flash", "deepseek/deepseek-v4-flash"];
+    assert.deepEqual(payload.data.map((model: { id: string }) => model.id).sort(), expectedIds);
     const publicResponse = await publicModels(new Request("https://spiritlm.example/v1/models", {
       headers: { Authorization: `Bearer ${key.secret}` },
     }));
     assert.equal(publicResponse.status, 200);
     const publicPayload = await publicResponse.json();
-    assert.deepEqual(publicPayload.data.map((model: { id: string }) => model.id), expectedIds);
+    assert.deepEqual(publicPayload.data.map((model: { id: string }) => model.id).sort(), expectedIds);
     for (const model of payload.data) {
       assert.equal(model.tool_calling, null);
       const configured = MODEL_GROUPS.flatMap((group) => group.models)
@@ -160,7 +160,7 @@ test("SpiritCode metadata preserves unknown capabilities and exposes no upstream
         expectedContext,
       );
       assert.equal(model.sample_price, true);
-      assert.equal(typeof model.price_per_million_tokens, "string");
+      assert.equal(model.price_per_million_tokens, "0.90000000");
       assert.equal(model.currency, "RUB");
     }
     const text = JSON.stringify(payload);

@@ -5,7 +5,7 @@ import {
   CHEAPVIBE_MODEL_FAMILIES,
   MODEL_GROUPS,
 } from "@/configs/consts/models.const";
-import { ProviderModelsSchema } from "@/actions/save-provider-catalog/schema";
+import { ProviderModelSchema } from "@/actions/save-provider-catalog/schema";
 import type { ProviderModel } from "@/actions/save-provider-catalog/types";
 import type { Model, ModelGroup } from "@/configs/types/models.types";
 import {
@@ -17,13 +17,22 @@ import {
 import { ApiError } from "./api-error";
 import { calculatePricePerMillionTokens } from "./model-price";
 
-import type {
-  UpstreamModel,
-  ModelCatalog,
-} from "@/configs/types/catalog.types";
+import type { UpstreamModel } from "@/configs/types/catalog.types";
 
 let catalogCache: { models: unknown[]; expires: number } | undefined;
 let catalogLoad: Promise<unknown[]> | undefined;
+const liveModelSchema = ProviderModelSchema.pick({
+  id: true,
+  display_name: true,
+  owned_by: true,
+  multiplier: true,
+});
+
+type CatalogModel = Pick<
+  ProviderModel,
+  "id" | "display_name" | "owned_by" | "multiplier" | "context_window" | "max_output_tokens"
+>;
+
 const upstreamBrand = /cheap[\s_-]*vibe(?:[\s_-]*code)?/i;
 
 function positiveTokenLimit(values: unknown[]): number | undefined {
@@ -39,14 +48,6 @@ function cheapvibeModelAlias(id: string): string {
   return separator === -1 ? id : id.slice(separator + 1);
 }
 
-function modelPrice(model: Model): Prisma.Decimal {
-  return new Prisma.Decimal(
-    model.pricePerMillionTokens
-      .replace(/[^\d,.]/g, "")
-      .replace(",", "."),
-  );
-}
-
 function publicModelAlias(id: string): string {
   return CHEAPVIBE_LEGACY_MODEL_IDS.get(id) ?? id.replace(
     /^(claude-[a-z]+-\d+)-(\d{1,2})(?=-|$)/,
@@ -54,7 +55,7 @@ function publicModelAlias(id: string): string {
   );
 }
 
-function publicModelName(model: ProviderModel, publicAlias: string): string {
+function publicModelName(model: CatalogModel, publicAlias: string): string {
   const name = model.display_name?.split(" · ").at(-1)?.trim() || model.id;
   return upstreamBrand.test(name) ? publicAlias : name;
 }
@@ -74,11 +75,9 @@ function cheapvibeModelProvider(alias: string, owner?: string) {
   if (owner === "xai" || owner === "google" || owner === "deepseek") return owner;
 }
 
-async function getProviderModels(): Promise<ProviderModel[] | null> {
+async function getWebsiteProviderModels(): Promise<CatalogModel[] | null> {
   if (process.env.NODE_ENV === "development") {
-    const models = await getCachedUpstreamModels().catch(() => undefined);
-    const parsed = ProviderModelsSchema.safeParse(models);
-    return parsed.success ? parsed.data : null;
+    return getLiveProviderModels().catch(() => null);
   }
 
   if (!process.env.DATABASE_URL) return null;
@@ -87,10 +86,7 @@ async function getProviderModels(): Promise<ProviderModel[] | null> {
   return data ?? null;
 }
 
-async function syncedModelGroups() {
-  const data = await getProviderModels();
-  if (!data) return null;
-
+function buildModelGroups(data: CatalogModel[]) {
   const groups = MODEL_GROUPS.map((group) => {
     const providerPrefix = group.provider === "xai" ? "x-ai" : group.provider;
     const models = new Map<string, {
@@ -107,7 +103,11 @@ async function syncedModelGroups() {
 
       const publicAlias = publicModelAlias(alias);
       const id = `${providerPrefix}/${publicAlias}`;
-      if (models.has(id) && alias !== cheapvibeModelAlias(id)) continue;
+      const previous = models.get(id);
+      if (previous && (
+        alias !== publicAlias ||
+        (previous.upstreamId === alias && upstream.id !== alias)
+      )) continue;
 
       const configured = group.models.find((model) => model.id === id);
       const price = calculatePricePerMillionTokens(upstream.multiplier);
@@ -128,15 +128,17 @@ async function syncedModelGroups() {
     return { group, models: [...models.values()] };
   }).filter(({ models }) => models.length > 0);
 
-  return groups.length ? groups : null;
+  return groups;
 }
 
 export async function websiteModelGroups(): Promise<ModelGroup[]> {
-  const groups = await syncedModelGroups();
-  return groups?.map(({ group, models }) => ({
+  const data = await getWebsiteProviderModels();
+  const groups = data ? buildModelGroups(data) : [];
+  if (!groups.length) return MODEL_GROUPS;
+  return groups.map(({ group, models }) => ({
     ...group,
     models: models.map(({ model }) => model),
-  })) ?? MODEL_GROUPS;
+  }));
 }
 
 export function upstreamHeaders() {
@@ -203,30 +205,23 @@ export async function fetchUpstreamModels(): Promise<unknown[]> {
   return payload.data;
 }
 
-async function getCachedUpstreamLimits(): Promise<ModelCatalog> {
-  const models = await getCachedUpstreamModels();
-  return new Map(
-    models
-      .filter(
-        (item): item is UpstreamModel =>
-          !!item && typeof item === "object" && "id" in item && typeof item.id === "string",
-      )
-      .map((item) => [
-        item.id,
-        {
-          contextWindow: positiveTokenLimit([
-            item.context_window,
-            item.contextWindow,
-            item.context_length,
-            item.max_context_tokens,
-          ]),
-          maxOutputTokens: positiveTokenLimit([
-            item.max_output_tokens,
-            item.max_tokens,
-          ]),
-        },
+async function getLiveProviderModels(): Promise<CatalogModel[]> {
+  return (await getCachedUpstreamModels()).flatMap((item) => {
+    const parsed = liveModelSchema.safeParse(item);
+    if (!parsed.success) return [];
+
+    const limits = item as UpstreamModel;
+    return [{
+      ...parsed.data,
+      context_window: positiveTokenLimit([
+        limits.context_window,
+        limits.contextWindow,
+        limits.context_length,
+        limits.max_context_tokens,
       ]),
-  );
+      max_output_tokens: positiveTokenLimit([limits.max_output_tokens, limits.max_tokens]),
+    }];
+  });
 }
 
 async function getCachedUpstreamModels() {
@@ -247,48 +242,16 @@ async function getCachedUpstreamModels() {
 }
 
 export async function availableModels() {
-  const synced = await syncedModelGroups();
-  if (synced) {
-    const models = synced.flatMap((group) => group.models);
-    // Snapshots saved before token limits were recorded can use live metadata.
-    const legacyLimits = models.every((model) => model.maxOutputTokens === undefined)
-      ? await getCachedUpstreamLimits().catch(() => undefined)
-      : undefined;
-    return models.map(({ model, upstreamId, maxOutputTokens, price }) => ({
+  const groups = buildModelGroups(await getLiveProviderModels());
+  return groups.flatMap(({ models }) =>
+    models.map(({ model, upstreamId, maxOutputTokens, price }) => ({
       id: model.id,
       name: model.name,
       upstreamId,
-      contextWindow: model.contextWindow ?? legacyLimits?.get(upstreamId)?.contextWindow,
-      maxOutputTokens: maxOutputTokens ?? legacyLimits?.get(upstreamId)?.maxOutputTokens,
+      contextWindow: model.contextWindow,
+      maxOutputTokens,
       price,
-    }));
-  }
-
-  const available = await getCachedUpstreamLimits();
-
-  return MODEL_GROUPS.flatMap((group) =>
-    group.models.map((model) => {
-      // CheapVibeCode exposes bare model IDs. Prefer those aliases even if
-      // its catalog also happens to include a provider-prefixed ID.
-      const alias = cheapvibeModelAlias(model.id);
-      // Claude catalog IDs use dashes for version separators; public IDs use dots.
-      const dashedAlias = alias.replace(/\./g, "-");
-      const upstreamIds = group.provider === "anthropic"
-        ? [alias, dashedAlias, model.id, `anthropic/${dashedAlias}`]
-        : [alias, model.id];
-      const upstreamId = upstreamIds.find((candidate) => available.has(candidate)) ?? alias;
-      const limits = available.get(upstreamId) ?? available.get(dashedAlias);
-      // The upstream discovery list can lag behind supported model IDs.
-      // Keep every configured SpiritLM model, with verified context fallbacks when omitted.
-      return {
-        id: model.id,
-        name: model.name,
-        upstreamId,
-        contextWindow: limits?.contextWindow ?? model.contextWindow,
-        maxOutputTokens: limits?.maxOutputTokens,
-        price: modelPrice(model),
-      };
-    }),
+    })),
   );
 }
 

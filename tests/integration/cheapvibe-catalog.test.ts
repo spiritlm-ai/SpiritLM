@@ -107,6 +107,13 @@ test("website and proxy use the same prices for the supported model families", a
     ["nvidia/nemotron-3.5-super-vl", "0,01 ₽"],
   ]);
 
+  const originalKey = process.env.CHEAPVIBE_API_KEY;
+  process.env.CHEAPVIBE_API_KEY = "test-upstream-key";
+  t.after(() => {
+    if (originalKey === undefined) delete process.env.CHEAPVIBE_API_KEY;
+    else process.env.CHEAPVIBE_API_KEY = originalKey;
+  });
+  t.mock.method(globalThis, "fetch", async () => Response.json({ data: models }));
   const deepseek = await resolveModel("deepseek/deepseek-v4.1-flash");
   assert.equal(deepseek.upstreamId, "deepseek-v4.1-flash-1017");
   assert.equal(deepseek.price.toFixed(), "1.9");
